@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    function isType(content, type, fn) {
+        debugger
+        let t = Object.prototype.toString.call(content).replace(/\[object\s|\]/g, '')
+        fn(type, t)
+    }
+    isType('hello', 'String', function (type, t) { // 作为参数传入的函数，接收isType函数内的fn中type和t这两个参数
+        console.log(type === t)
+    })
+</script>

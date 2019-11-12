@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="./Promise.js"></script>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+   
+    // executor默认在new的时候会自动执行
+    // 成功和失败的时候可以传递参数
+    let promise = new Promise((resolve, reject) => {
+        debugger
+        // resolve('hello world!')
+        resolve('看看同时执行resolve和reject会发生什么？')  // 5.此行执行resovle
+        reject('看看同时执行resolve和reject会发生什么？') // 5.此行执行reject
+    })
+    promise.then((data) => { 
+        debugger
+        // onFulfilled
+        console.log('success:' + data)
+    }, (err) => { 
+        // onRejected(self.reason)
+        console.log('err:' + err)
+    })
+</script>

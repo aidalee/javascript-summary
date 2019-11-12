@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    'use strict';
+    // 定义数字0:
+    var zero = function (f) {
+        return function (x) {
+            return x;
+        }
+    };
+    // 定义数字1:
+    var one = function (f) {
+        return function (x) {
+            return f(x);
+        }
+    };
+    // 定义加法:
+    function add(n, m) {
+        return function (f) {
+            return function (x) {
+                return m(f)(n(f)(x));
+            }
+        }
+    }
+    var two = add(one, one);
+    var three = add(one, two);
+    console.log(two)
+    // https://www.liaoxuefeng.com/wiki/1022910821149312/1023021250770016
+</script>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>03_变量的解构赋值</title>
+</head>
+
+<body>
+  咱们可以对任何实现可迭代协议( iterable protocol)的对象进行解构。
+  许多原生基本类型和对象都是可迭代的: array, string, typed arrays, set 和 map。
+  如果不想局限于基本类型，通过实现可迭代协议，可以定制解构逻辑。
+  <!--
+1. 理解:
+  * 从对象或数组中提取数据, 并赋值给变量(多个)
+2. 对象的解构赋值
+  let {n, a} = {n:'tom', a:12}
+3. 数组的解构赋值
+  let [a,b] = [1, 'atguigu'];
+4. 用途
+  * 给多个形参赋值
+-->
+  <script type="text/javascript">
+    let obj = { name: 'kobe', age: 39 };
+    //    let name = obj.name;
+    //    let age = obj.age;
+    //    console.log(name, age);
+    //对象的解构赋值
+    let { age } = obj;
+    console.log(age);
+    //    let {name, age} = {name : 'kobe', age : 39};
+    //    console.log(name, age);
+
+    //3. 数组的解构赋值  不经常用
+    let arr = ['abc', 23, true];
+    let [a, b, c, d] = arr;
+    console.log(a, b, c, d);
+    //console.log(e);
+    function person(p) {//不用解构赋值
+      console.log(p.name, p.age);
+    }
+    person(obj);
+
+    function person1({ name, age }) {
+      console.log(name, age);
+    }
+    person1(obj);
+
+
+
+    // __数组解构
+    let [a, b, c] = [1, 2, 3] // a=1, b=2, c=3
+    let [d, [e], f] = [1, [2], 3] // 嵌套数组解构 d=1, e=2, f=3
+    let [g, ...h] = [1, 2, 3] // 数组拆分 g=1, h=[2, 3]
+    let [i, , j] = [1, 2, 3] // 不连续解构 i=1, j=3
+    let [k, l] = [1, 2, 3] // 不完全解构 k=1, l=2
+    // __对象解构
+    let { a, b } = { a: 'aaaa', b: 'bbbb' } // a='aaaa' b='bbbb'
+    let obj = { d: 'aaaa', e: { f: 'bbbb' } }
+    let { d, e: { f } } = obj // 嵌套解构 d='aaaa' f='bbbb'
+    let g;
+    (g = { g: 'aaaa' }) // 以声明变量解构 g='aaaa'
+    // __字符串解构
+    let [h, i, j, k] = 'nice' // 字符串解构 h='n' i='i' j='c' k='e'
+
+    // 使用场景之函数参数的定义
+    // 一般我们在定义函数的时候，如果函数有多个参数时，
+    // 在es5语法中函数调用时参数必须一一对应，否则就会出现赋值错误的情况，来看一个例子：
+    function personInfo(name, age, address, gender) {
+      console.log(name, age, address, gender)
+    }
+    personInfo('william', 18, 'changsha', 'man')
+    // 上面这个例子在对用户信息的时候需要传递四个参数，且需要一一对应，
+    // 这样就会极易出现参数顺序传错的情况，从而导致bug，接下来来看es6解构赋值是怎么解决这个问题的：
+    function personInfo({ name, age, address, gender }) {
+      console.log(name, age, address, gender)
+    }
+    personInfo({ gender: 'man', address: 'changsha', name: 'william', age: 18 }) //这么写我们只需要知道要传什么参数就行，不需要知道参数的顺序也没问题
+
+    // 使用场景之交换变量的值
+    // 在es5中我们需要交换两个变量的值需要借助临时变量的帮助
+    var a = 1, b = 2, c
+    c = a
+    a = b
+    b = c
+    console.log(a, b)
+    // 而在es6中
+    let a = 1, b = 2;
+    [b, a] = [a, b]
+    console.log(a, b)
+
+    // 使用场景之函数的默认参数
+    // 在日常开发中，经常会有这种情况：函数的参数需要默认值，如果没有默认值在使用的时候就会报错es5：
+    function saveInfo(name, age, address, gender) {
+      name = name || 'william'
+      age = age || 18
+      address = address || 'changsha'
+      gender = gender || 'man'
+      console.log(name, age, address, gender)
+    }
+    saveInfo()
+    // function saveInfo(name, age, address, gender)可以写成function saveInfo(name="william", age=18, address="changsha", gender="male")
+    // 再来看es6中的使用的方法
+    function saveInfo({ name = 'william', age = 18, address = 'changsha', gender = 'man' } = {}) {
+      // 在函数定义的时候就定义了默认参数，这样就免了后面给参数赋值默认值的过程
+      console.log(name, age, address, gender)
+    }
+    saveInfo()
+
+    // 解构iterables
+    const movies = {
+      list: [
+        { title: 'Heat' },
+        { title: 'Interstellar' }
+      ],
+      [Symbol.iterator]() {
+        let index = 0;
+        return {
+          next: () => {
+            if (index < this.list.length) {
+              const value = this.list[index++].title;
+              return { value, done: false };
+            }
+            return { done: true };
+          }
+        };
+      }
+    };
+
+    const [firstMovieTitle] = movies;
+    console.log(firstMovieTitle); // => 'Heat'
+
+  </script>
+</body>
+
+</html>

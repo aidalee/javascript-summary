@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    function Person(name, pets) {
+        this.name = name
+        this.pets = pets
+    }
+
+    Person.prototype.eat = function () {
+        console.log('吃饭')
+    }
+
+    function Student(num, name, pets) {
+        Person.call(this, name, pets)
+        this.num = num
+    }
+
+    // * 寄生式继承
+    function Temp() { } // * 声明一个空的构造函数，用于桥梁作用
+    Temp.prototype = Person.prototype // * 把Temp构造函数的原型对象指向Person的原型对象
+    let temp = new Temp() // * 用构造函数Temp实例化一个实例temp
+    Student.prototype = temp // * 把子构造函数的原型对象指向temp
+    temp.constructor = Student // * 把temp的constructor指向Student
+
+    let student1 = new Student('030578001', 'slc', ['旺财', '小黄'])
+    console.log(student1) 
+    // Student { name: 'slc', 
+    // pets: ['旺财', '小黄'],
+    // num: '030578001' }
+
+    let student2 = new Student('030578002', 'iamslc', ['小红'])
+    console.log(student2)
+    // Student { name: 'iamswr',
+    // pets: [ '小红' ], 
+    // num: '030578002' }
+</script>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>01_let关键字</title>
+</head>
+
+<body>
+
+  <button>测试1</button>
+  <br>
+  <button>测试2</button>
+  <br>
+  <button>测试3</button>
+  <br>
+  <!--
+***let
+1. 作用:
+  * 与var类似, 用于声明一个变量
+2. 特点:
+  * 在块作用域内有效
+  * 不能重复声明
+  * 不会预处理, 不存在提升
+3. 应用:
+  * 循环遍历加监听
+  * 使用let取代var是趋势
+-->
+  <script type="text/javascript">
+    //console.log(age);// age is not defined
+    let age = 12;
+    //let age = 13;不能重复声明
+    console.log(age);
+    let btns = document.getElementsByTagName('button');
+    for (let i = 0; i < btns.length; i++) {
+      btns[i].onclick = function () {
+        alert(i);
+      }
+    }
+
+    let users = [{
+      name: 'Yazeed',
+      age: 25
+    }, {
+      name: 'Sam',
+      age: 30
+    }, {
+      name: 'Bill',
+      age: 20
+    }];
+    // let getName = (user) => user.name;
+    // 等同于下 function
+    function getName(user) {
+      return user.name
+    }
+    // map方法返回一个新数组，数组中的元素为原始数组元素调用函数处理后的值
+    let usernames = users.map(getName);
+    console.log(usernames);
+    // 面试题:
+    // 1.说明一下程序的结果1和结果2
+    function modifyArray(arr, callback) {
+      setTimeout(function () {
+        arr.push(100);
+        callback()
+        // console.log(callback)
+      }, 100)
+    }
+    var arr = [1, 2, 3, 4, 5]
+
+    modifyArray(arr, function () {
+      // console.log("result1", arr) //[1, 2, 3, 4, 5, 100]
+    })
+    // 换一种写法:
+    // function callback(){
+    //   console.log("result1",arr)
+    // }
+    // modifyArray(arr,callback)
+
+    // console.log("result2", arr) //[1, 2, 3, 4, 5]
+    // 2.说明一下程序的结果1和结果2以及你的建议
+    var arr = [1, 2, 3, 4, 5];
+    class modifyClass {
+      constructor() {
+        this.num = 100;
+      }
+      modify(arr, callback) {
+        setTimeout(function () {
+          console.log(this) //此处this指向window this.num是undefined
+          this.num2 = 200;
+          arr.push(this.num + this.num2);
+          callback()
+        }, 100)
+      }
+    }
+    var ma = new modifyClass();
+    ma.modify(arr, function () {
+      console.log("result1", arr) //[1,2,3,4,5,NaN] 如果期望得到[1,2,3,4,5,300]则需要将setTimeout中的function改为箭头函数
+    })
+    console.log("result2", arr) //[1,2,3,4,5]
+
+    // 3.请将一下函数使用异步函数(Async/Await)重新构建
+    function getResponseSize(url) {
+      return fetch(url).then(function (response) {
+        const reader = response.body.getReader();
+        let total = 0;
+
+        return reader.read().then(function processResult(result) {
+          if (result.done) return total;
+          const value = result.value;
+          total += value.length;
+          return reader.read().then(processResult);
+        });
+      });
+    }
+    // 题解：
+    async function getReader(url) {
+      return fetch(url).then(function (response) {
+        const reader = response.body.getReader();
+      })
+    }
+    async function total(reader) {
+      return reader.read().then(function processResult(result) {
+        if (result.done) return total;
+        const value = result.value;
+        total += value.length;
+        return reader.read().then(processResult);
+      })
+    }
+    async function getResponseSize(url) {
+      let total = 0;
+      let reader = await getReader(url)
+      total = await total(reader)
+    }
+    getResponseSize()
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <button>1</button>
+    <button>2</button>
+    <button>3</button>
+    <button>4</button>
+    <button>5</button>
+</body>
+
+</html>
+<script>
+    // JavaScript 变量可以是局部变量或全局变量。
+    // 私有变量可以用到闭包。
+    // 变量声明时如果不使用 var 关键字，那么它就是一个全局变量，即便它在函数内定义。
+    (function () {
+        var str = 'hello'
+        console.log(str)
+    })()
+    // console.log(str) //报错
+
+    var btns = document.getElementsByTagName('button');
+    for (var i = 0; i < btns.length; i++) {
+        var btn = btns[i]
+        // console.log(btn)
+        btn.onclick = function () {
+            alert(`点击了第${i}个按钮`)
+        }
+        // 无论我们点击哪个button，都是弹出'点击了第5个按钮'，
+        // 因为btn.onclick事件是异步触发的，当事件被触发时，
+        // for循环早已经结束，此时变量I的值已经是5，
+        // 所以onclick事件函数从内到外查找变量i时，查找到的值总是5。
+
+    }
+
+
+    var btns = document.getElementsByTagName('button')
+    for (var i = 0; i < btns.length; i++) {
+        (function (i) {
+            var btn = btns[i]
+            console.log(i) // 0 1 2 3 4
+            btn.onclick = function () {
+                console.log(i)
+                alert(`点击了第${i}个按钮`)
+            }
+        })(i)
+    }
+
+
+    // function count() {
+    //     var arr = [];
+    //     for (var i = 1; i <= 3; i++) {
+    //         arr.push(function () {
+    //             return i * i;
+    //         });
+    //     }
+    //     console.log(i) //4
+    //     console.log(arr[1])
+    //     return arr;
+    // }
+    // var results = count();
+    // var f1 = results[0]; //16
+    // var f2 = results[1]; //16
+    // var f3 = results[2]; //16
+    // 全部都是16！原因就在于返回的函数引用了变量i，但它并非立刻执行。等到3个函数都返回时，它们所引用的变量i已经变成了4，因此最终结果为16。
+    // 返回闭包时牢记的一点就是：返回函数不要引用任何循环变量，或者后续会发生变化的变量。
+
+    function count() {
+        var arr = [];
+        for (var i = 1; i <= 3; i++) {
+            arr.push((function (n) {
+                console.log('n', n)
+                return function () {
+                    // 匿名函数
+                    return n * n;
+                }
+            })(i));
+        }
+        console.log(i) //4
+        return arr;
+    }
+    console.log(count)
+    var results = count();
+    console.log(results[0])
+    // results[0]:
+    // f() {return n*n} //匿名函数
+    var f1 = results[0];
+    var f2 = results[1];
+    var f3 = results[2];
+
+    f1(); // 1
+    f2(); // 4
+    f3(); // 9
+
+    // 闭包还可以把多参数的函数变成单参数的函数。例如，要计算xy可以用Math.pow(x, y)函数，
+    // 不过考虑到经常计算x2或x3，我们可以利用闭包创建新的函数pow2和pow3：
+    'use strict';
+    function make_pow(n) {
+        return function (x) {
+            return Math.pow(x, n);
+        }
+    }
+    // 创建两个新函数:
+    var pow2 = make_pow(2);
+    var pow3 = make_pow(3);
+    console.log(pow2(5)); // 25
+    console.log(pow3(7)); // 343
+</script>

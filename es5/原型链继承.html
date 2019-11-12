@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+
+  <body></body>
+</html>
+<script>
+  function Person() {
+    this.name = "slc";
+    this.pets = ["旺财", "小黄"];
+  }
+
+  Person.prototype.eat = function() {
+    console.log("吃饭");
+  };
+
+  function Student() {
+    this.num = "030578000";
+  }
+
+  // * new一个Person的实例，同时拥有其实例属性方法和原型属性方法
+  let p = new Person();
+
+  // * 把Student的原型对象指向实例p
+  Student.prototype = p;
+
+  // * 把Student的原型对象的constructor指向Student，解决类型判断问题
+  Student.prototype.constructor = Student;
+
+  let student = new Student();
+  console.log(student.num); // '030578000'
+  console.log(student.name); // * 'slc'
+  console.log(student.pets); // * '[ '旺财', '小黄' ]'
+  student.eat(); // '吃饭'
+</script>

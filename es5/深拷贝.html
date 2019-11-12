@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>深拷贝</title>
+</head>
+
+<body>
+
+</body>
+    <a href="https://juejin.im/post/5abb55ee6fb9a028e33b7e0a">https://juejin.im/post/5abb55ee6fb9a028e33b7e0a</a>
+    <br>
+    <a href="https://zhuanlan.zhihu.com/p/41699218">lodash _.cloneDeep 源码解读 https://zhuanlan.zhihu.com/p/41699218</a>
+</html>
+<script>
+    // 最简单的深克隆方法 JSON.parse(JSON.stringify(oldObj)):
+    const oldObj = {
+        a: 1,
+        b: ['e', 'f', 'g'],
+        c: { h: { i: 2 } }
+    };
+    const newObj = JSON.parse(JSON.stringify(oldObj));
+    console.log(newObj.c.h, oldObj.c.h); // { i: 2 } { i: 2 }
+    console.log(oldObj.c.h === newObj.c.h); // false
+    newObj.c.h.i = 'change';
+    console.log(newObj.c.h, oldObj.c.h); // { i: 'change' } { i: 2 }
+    console.log('####')
+    // 这个方法虽然可以解决绝大部分的使用场景,但是却有很多坑：
+    // 1.他无法实现对函数 、RegExp等特殊对象的克隆
+    // 2.会抛弃对象的constructor,所有的构造函数会指向Object
+    // 3.对象有循环引用,会报错
+    // ###
+    // 构造函数
+    function person(pname) {
+        this.name = pname;
+    }
+    const Messi = new person('Messi');
+    // 函数
+    function say() {
+        console.log('hi');
+    };
+    const oldObj2 = {
+        a: say,
+        b: new Array(1),
+        c: new RegExp('ab+c', 'i'),
+        d: Messi
+    };
+    const newObj2 = JSON.parse(JSON.stringify(oldObj2));
+    console.log(newObj2, oldObj2)
+    // 无法复制函数
+    console.log(newObj2.a, oldObj2.a); // undefined [Function: say]
+    // 稀疏数组复制错误
+    console.log(newObj2.b[0], oldObj2.b[0]); // null undefined
+    // 无法复制正则对象
+    console.log(newObj2.c, oldObj2.c); // {}  /ab+c/i
+    // 构造函数指向错误
+    console.log(newObj2.d.constructor, oldObj2.d.constructor); // [Function: Object] [Function: person]
+    // 可以看到在对函数、正则对象、稀疏数组等对象克隆时会发生意外，构造函数指向也会发生错误。
+    const oldObj3 = {}
+    oldObj3.a = oldObj3
+    // oldObj3.b = 'b'
+    console.log(oldObj3)
+    const newObj3 = JSON.parse(JSON.stringify(oldObj3));
+    console.log(newObj3.a, oldObj3.a); // TypeError: Converting circular structure to JSON
+    // 对象的循环引用会抛出错误
+
+
+    // 通常教程里提到的方法也是不靠谱的,他们存在的问题跟上一届序列反序列操作中凸显的问题是一致的,例如:
+    function isArray (arr) {
+        return Object.prototype.toString.call(arr) === '[object Array]';
+    }
+    // 深度克隆
+    function deepClone (obj) {
+        if(typeof obj !== 'object' && typeof obj !=='function') {
+            return obj; // 原始类型直接返回
+        }
+        var o = isArray(obj) ? [] : {} // 如果原对象是数组返回[]否则返回{}
+        for (i in obj) {
+            if(obj.hasOwnProperty(i)) {
+                o[i] = typeof obj[i] === 'object' ? deepClone(obj[i]) : obj[i];
+            }
+        }
+        return o;
+    }
+    // lodash _.cloneDeep 
+</script>

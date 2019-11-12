@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>04_模板字符串</title>
+</head>
+
+<body id="demo">
+  <!--
+1. 模板字符串 : 简化字符串的拼接
+  * 模板字符串必须用 `` 包含
+  * 变化的部分使用${xxx}定义
+-->
+  <script type="text/javascript">
+    let obj = {
+      name: 'anverson',
+      age: 41
+    };
+    console.log('我叫:' + obj.name + ', 我的年龄是：' + obj.age);
+
+    console.log(`我叫:${obj.name}, 我的年龄是：${obj.age}`);
+
+
+
+
+    var ages = [3, 10, 18, 20,30];
+
+    function checkAdult(age) {
+      console.log('a')
+      return age >= 18;
+    }
+
+    function myFunction() {
+      document.getElementById("demo").innerHTML = ages.findIndex(checkAdult);
+    }
+    myFunction();
+  </script>
+</body>
+
+</html>

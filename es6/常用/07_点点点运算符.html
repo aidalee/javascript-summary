@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>07_3点运算符</title>
+  <div></div>
+  <div></div>
+  <div></div>
+</head>
+<body>
+<!--
+* 用途
+1. rest(可变)参数
+    * 用来取代arguments 但比arguments灵活,只能是最后部分形参参数
+  function add(...values) {
+    let sum = 0;
+    for(value of values) {
+      sum += value;
+    }
+    return sum;
+  }
+2. 扩展运算符
+  let arr1 = [1,3,5];
+  let arr2 = [2,...arr1,6];
+  arr2.push(...arr1);
+-->
+<script type="text/javascript">
+// 参考：https://blog.csdn.net/qq_30100043/article/details/53391308
+    function fun(...values) {
+        console.log(arguments);
+//        arguments.forEach(function (item, index) {
+//            console.log(item, index);
+//        });
+        console.log(values);
+        values.forEach(function (item, index) {
+            console.log(item, index);
+        })
+    }
+    fun(1,2,3);
+
+    let arr = [2,3,4,5,6];
+    let arr1 = ['abc',...arr, 'fg'];
+    console.log(arr1);
+
+    function push(array, items) {
+      console.log(items)// [4,5,6]
+      console.log(...items) // 4 5 6
+      array.push(...items);
+      array.push(7,8,9)
+      console.log(array) // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    }
+    let name = [1,2,3]
+    let age = [4,5,6]
+    push(name,age)
+    console.log(name)
+    let list = [1,2,3];
+    let [a, ...rest] = list
+    console.log(a,rest) //1 [2,3]
+    
+    const [first2, ...rest2] = [1, 2, 3, 4, 5];
+    console.log(first2) // 1
+    console.log(rest2) // [2, 3, 4, 5]
+    const [first3, ...rest3] = [];
+    console.log(first3) // undefined
+    console.log(rest3) // []:
+    const [first4, ...rest4] = ["foo"];
+    console.log(first4) // "foo"
+    console.log(rest4) // []
+    // 如果将扩展运算符用于数组赋值，只能放在参数的最后一位，否则会报错:
+    // const [...butLast, last] = [1, 2, 3, 4, 5];
+    //  报错
+    // const [first, ...middle, last] = [1, 2, 3, 4, 5];
+    //  报错
+
+    // 能够正确识别 32 位的 Unicode 字符
+    let l1='x\uD83D\uDE80y'.length // 4
+    let l2=[...'x\uD83D\uDE80y'].length // 3
+    function length(str) {
+      return [...str].length;
+    }
+    length('x\uD83D\uDE80y') // 3
+    // 凡是涉及到操作 32 位 Unicode 字符的函数，都有这个问题。因此，最好都用扩展运算符改写
+    let str = 'x\uD83D\uDE80y';
+    str.split('').reverse().join('')
+    // 'y\uDE80\uD83Dx'
+    let reverse = [...str].reverse().join('')
+    // 'y\uD83D\uDE80x'
+    // 上面代码中，如果不用扩展运算符，字符串的reverse操作就不正确
+    
+    // 任何 实现了Iterator 接口的对象，都可以用扩展运算符转为真正的数组
+    let nodeList = document.querySelectorAll('div')
+    console.log(nodeList)
+    let array = [...nodeList]
+    // 对于那些没有部署 Iterator 接口的类似数组的对象，扩展运算符就无法将其转为真正的数组：
+    let arrayLike = {
+      '0': 'a',
+      '1': 'b',
+      '2': 'c',
+      length: 3
+    };
+    // Uncaught TypeError: object is not iterable (cannot read property Symbol(Symbol.iterator))
+    // let arrtest = [...arrayLike]; 
+    let arrtest2 = Array.from(arrayLike)
+    console.log(arrtest2)
+    // ayLike是一个类似数组的对象，但是没有部署 Iterator 接口，扩展运算符就会报错。
+    // 这时，可以改为使用Array.from方法将arrayLike转为真正的数组
+    // 扩展运算符内部调用的是数据结构的 Iterator 接口，
+    // 因此只要具有 Iterator 接口的对象，都可以使用扩展运算符，比如 Map 结构
+    let map = new Map([
+      [1, 'one'],
+      [2, 'two'],
+      [3, 'three'],
+    ]);
+    let mapArr = [...map.keys()]; 
+    console.log(mapArr) // [1, 2, 3]
+    // Generator 函数运行后，返回一个遍历器对象，因此也可以使用扩展运算符:
+    var go = function*(){
+      yield 1;
+      yield 2;
+      yield 3;
+    };
+    console.log([...go()]) // [1, 2, 3]
+    // 上面代码中，变量go是一个 Generator 函数，执行后返回的是一个遍历器对象，
+    // 对这个遍历器对象执行扩展运算符，就会将内部遍历得到的值，转为一个数组。
+</script>
+
+</body>
+</html>

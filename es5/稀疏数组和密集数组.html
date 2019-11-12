@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>稀疏数组和密集数组</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    // ###稀疏数组： 
+    // 数组中的元素之间可以有空隙，因为一个数组其实就是一个键值映射。
+    // 创建一个指定长度的稀疏数组
+    let arr = Array(3)
+    arr[0] = 1;
+    console.log(arr, arr.length);
+    console.log('遍历')
+    for (let i = 0; i < arr.length; i++) {
+        console.log(i, arr[i]) // 0 1 , 1 undefined , 2 undefined
+    }
+    // 还有一些其他情况会生成稀疏数组
+    let arr2 = []
+    arr[0] = 0;
+    arr[100] = 100;
+    // 数组元素实际只有2个，但是长度确实101
+    console.log(arr.slice(5,88))
+
+    console.log('###密集数组')
+    // ###密集数组：
+    // 1.创建密集数组的技巧
+    let a = Array.apply(null, Array(3));
+    console.log(a) // [undefined, undefined, undefined]
+    // 实际上，JavaScript并没有常规的数组，所有的数组其实就是个对象，只不过会自动管理一些"数字"属性和length属性罢了。
+    // 说的更直接一点，JavaScript中的数组根本没有索引，因为索引应该是数字，
+    // 而JavaScript中数组的索引其实是字符串：arr[1]其实就是arr["1"]，给arr["1000"] = 1，arr.length也会自动变为1001。
+    console.log(a["0"]) // undefined
+    a["1000"] = 1;
+    console.log(a)
+    // 这些表现的根本原因就是：JavaScript中的对象就是字符串到任意值的键值对。注意键只能是字符串。
+    // 2.另外一个创建密集数组的技巧
+    let ary = Array.apply(null, Array(3)).map(Function.prototype.call.bind(Number))
+    console.log(ary)
+    // 3.第三种方式
+    Array(100).join('a')
+    // 但是有个问题就是两个元素才1个坑，因为2个才能join。100个元素就需要101个
+    // 实际用途
+    // 在实际生产中，使用上面讲的创建密集数组的方法会让别人无法读懂你的代码。所以封装成一个工具函数会更好
+    // 比如 _.range:
+    // _.range(3)    //[ 0, 1, 2 ]
+    // 和map配合使用，可以使用某个指定的值填充整个数组。
+    // _.range(3).map(function () { return "a" })
+    // [ 'a', 'a', 'a' ]
+
+
+    // 读lodash源码之从slice看稀疏数组与密集数组 https://github.com/yeyuqiudeng/pocket-lodash/issues/1
+    var sparse = new Array(10)
+    var dense = new Array(10).fill(undefined)
+    for (let i = 0; i < sparse.length; i++) {
+        console.log(sparse[i]) // 10个undefined
+    }
+    sparse.forEach(function (item) {
+        console.log(item) // 不会调用打印
+    })
+    dense.forEach(function (item) {
+        console.log(item) // 10个undefined
+    })
+    // 下面是 lodash 实现 slice 的源码。除了对待稀疏数组跟原生的 slice 不一致外，其他的规则还是一样的
+    // [1,2,3].slice(0,2)  // [1,2]
+    let b = { a: 1 }
+    console.log(b.length)
+    function slice(array, start, end) {
+        // 不传参时，length 默认为0，否则获取数组的长度。注意这里用的是 array == null ，非 array === null ，包含了 undefined 的判断。
+        // 所以在不传参调用 lodash 的 slice 时，返回的是空数组，而原生的 slice 没有这种调用方式。
+        let length = array == null ? 0 : array.length
+        if (!length) {
+            return [] // 如果array是没有length属性的值 返回空数组
+        }
+        start = start == null ? 0 : start
+        end = end === undefined ? length : end
+        if (start < 0) {
+            start = -start > length ? 0 : (length + start)
+        }
+        end = end > length ? length : end
+        if (end < 0) {
+            end += length
+        }
+        length = start > end ? 0 : ((end - start) >>> 0)
+        start >>>= 0
+        // js表达式和运算符 https://juejin.im/post/58116ca467f3560057d58bee#heading-34
+        let index = -1
+        const result = new Array(length)
+        while (++index < length) {
+            result[index] = array[index + start]
+        }
+        return result
+    }
+    console.log(slice(arr, 5, 88))
+</script>

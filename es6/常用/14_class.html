@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>12_class</title>
+</head>
+
+<body>
+</body>
+<!--
+1. 通过class定义类/实现类的继承
+2. 在类中通过constructor定义构造方法
+3. 通过new来创建类的实例
+4. 通过extends来实现类的继承
+5. 通过super调用父类的构造方法
+6. 重写从父类中继承的一般方法
+-->
+<script type="text/javascript">
+    class Person {
+        //调用类的构造方法
+        constructor(name, age) {
+            this.name = name;
+            this.age = age;
+
+        }
+        //定义一般的方法
+        showName() {
+            debugger
+            console.log(this.name, this.age);
+        }
+    }
+    let person = new Person('kobe', 39);
+    console.log(person)
+    console.log(person.showName())
+    person.showName()
+    console.log(person, person.showName()); //Object undefined
+
+    
+    // 为什么console.log(person.showName())会是undefined呢？不应该是'kobe', 39才对吗？
+    // 这是因为showName()函数返回的是表达式 console.log(this.name, this.age)的返回值，
+    // 但对于console.log这个函数而言它本身是没有返回值的，所以返回undefined。其情形相当于变量没有赋值，如同下述代码:
+    let a
+    console.log(a);    // 打印结果为undefined，变量未赋值
+    function b(){}
+    console.log(b())    // 打印结果为undefined，函数没有返回值
+    // 关键是 console.log这个函数是没有返回值的
+
+
+
+    //定义一个子类
+    class StrPerson extends Person {
+        constructor(name, age, salary) {
+            super(name, age);//调用父类的构造方法
+            this.salary = salary;
+        }
+        showName() {//在子类自身定义方法
+            console.log(this.name, this.age, this.salary);
+        }
+    }
+    let str = new StrPerson('weide', 38, 1000000000);
+    console.log(str);
+    str.showName();
+</script>
+
+</html>

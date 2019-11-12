@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    // 当我们显式return一个对象数据类型时
+    function Dog(name, age) {
+        this.name = name
+        this.age = age
+        return { a: '1', b: '2' }
+    }
+    let dog = new Dog('tom', 12)
+    console.log(dog) // {a:'1',b:'2'}
+
+
+    // 当我们显式return一个原始数据类型
+    function Person(name, age) {
+        this.name = name
+        this.age = age
+        return "1"
+    }
+    let p = new Person("邵威儒", 28) // { name: '邵威儒', age: 28 }
+    console.log(p.prototype) //undefined
+    console.log(Person.prototype)
+
+    // 
+    Person.prototype = {
+        eat: function () {
+            console.log('吃饭')
+        },
+        sleep: function () {
+            console.log('睡觉')
+        }
+    }
+    // 和原型对象有关几个常用方法:
+    function Student() {
+        this.name = 'slc'
+        this.age = 12
+    }
+    // 1.hasOwnProperty 在对象自身查找属性而不到原型上查找
+    let s = new Student()
+    console.log(s)
+    let key = 'name'
+    if ('constructor' in s) {
+        alert('constructor')
+        // in 会查找原型上的属性
+    }
+    if ((key in s) && s.hasOwnProperty(key)) {
+        alert(s.hasOwnProperty(key))
+        // hasOwnProperty() 方法会返回一个布尔值，
+        // 指示对象自身属性中是否具有指定的属性（也就是是否有指定的键）
+    } else {
+        alert(123)
+    }
+
+
+    // 2.isPrototypeOf 判断一个对象是否是某个实例的原型对象
+    function Teacher() {
+        this.name = 'slc'
+    } //构造函数
+    console.log(Teacher)
+    let t = new Teacher()//实例
+    console.log(t)
+    // t:
+    // {
+    //     name:"slc"
+    //     __proto__:{
+    //         constructor:f Teacher(),
+    //         __proto__:Object
+    //     }
+    // }
+    let obj = Teacher.prototype//原型对象
+    console.log(obj)
+    // obj:
+    // constructor:f Teacher
+    // __proto__:Object
+    obj.isPrototypeOf(t) // true
+</script>

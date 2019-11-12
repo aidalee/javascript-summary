@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>浅拷贝</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+<script>
+    // 浅克隆函数
+    function shallowClone(o) {
+        const obj = {};
+        for (let i in o) {
+            // 先遍历属性
+            // for in 会遍历自有属性和原型上的继承属性
+            if (o.hasOwnProperty(i)) {
+                // 排除原型上的继承属性
+                obj[i] = o[i];
+            }
+            // obj[i] = o[i];
+        }
+        return obj;
+    }
+    // 被克隆对象
+    const oldObj = {
+        a: 1,
+        b: ['e', 'f', 'g'],
+        c: { h: { i: 2 } }
+    }
+    // 克隆的新对象
+    let newObj = shallowClone(oldObj)
+    console.log(newObj)
+    console.log(oldObj)
+    console.log(newObj == oldObj) // false
+    newObj.a = 3;
+    console.log(newObj.a, oldObj.a) // 3,1
+    console.log(newObj.c == oldObj.c) // true
+</script>
