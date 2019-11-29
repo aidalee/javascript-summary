@@ -179,11 +179,13 @@
 - vdom 为何用 diff 算法
   > dom 操作是昂贵的，因此尽量减少 dom 操作，找出本次 dom 必须更新的节点来更新，其他的不更新，这个找出的过程就需要 diff 算法
 - diff 算法的实现流程
+
   ![vdom实现核心流程代码片段01（container,vnode参数情况）](./images/vnode01.png)
   ![vdom实现核心流程代码片段02（vnode,newVnode参数情况）](./images/vnode02.png)
   ![vdom实现核心流程代码片段03（vnode,newVnode参数情况）](./images/vnode03.png)
   ![vdom实现核心流程代码片段04（vnode,newVnode参数情况）](./images/vnode04.png)
   ![vdom实现核心流程代码片段05（vnode,newVnode参数情况）](./images/vnode05.png)
+
 - 不仅仅是以上内容，还有:
   - 节点新增和删除
   - 节点重新排序
