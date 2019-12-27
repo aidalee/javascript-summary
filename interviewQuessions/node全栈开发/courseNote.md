@@ -112,7 +112,9 @@
   2. 过程中需要输入 root 用户名的密码，要记住这个密码
   3. 安装 MySQL workbench，用于操作 MySQL 的客户端，可视化操作
 - nodejs 连接 mysql
+
   1. 示例：用 demo 演示，不考虑使用
+
   ```
   <!-- index.js/app.js代码示例 -->
   <!-- 先安装mysql npm i mysql -->
@@ -139,6 +141,36 @@
   // 关闭连接
   con.end()
   ```
+
   2. 封装：将其封装为系统可用的工具
+
+  ```
+  <!-- 先安装mysql npm i mysql -->
+  <!-- src下新建config文件夹，config文件夹下新建db.js文件,内容如下 -->
+  const env = process.env.NODE_ENV // 获取环境变量参数
+  // 配置
+  let MYSQL_CONF
+  if(env==="dev") {
+    MYSQL_CONF={
+      host:"localhost",
+      user:"root",
+      password:"12345678",
+      port:"3306",
+      database:"blogServer"
+    }
+  }
+  if(env==="production") {
+    host:"localhost",
+    user:"root",
+    password:"12345678",
+    port:"3306",
+    database:"blogServer"
+  }
+  module.exports = {
+    MYSQL_CONF
+  }
+  ```
+
   3. 使用：让 API 直接操作数据库，不再使用假数据
+
 - API 连接 mysql

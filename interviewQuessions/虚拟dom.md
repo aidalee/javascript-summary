@@ -23,23 +23,23 @@
 
     ```
 
-        {
-            tag:'ul',
-            attrs:{
-                id:'list'
-            },
-            children:[
-                {
-                    tag:'li',
-                    attrs:{className:'item'},
-                    children:['Item 1']
-                },{
-                    tag:'li',
-                    attrs:{className:'item'},
-                    children:['Item 2']
-                }
-            ]
-        }
+    {
+        tag:'ul',
+        attrs:{
+            id:'list'
+        },
+        children:[
+            {
+                tag:'li',
+                attrs:{className:'item'},
+                children:['Item 1']
+            },{
+                tag:'li',
+                attrs:{className:'item'},
+                children:['Item 2']
+            }
+        ]
+    }
 
     ```
 
