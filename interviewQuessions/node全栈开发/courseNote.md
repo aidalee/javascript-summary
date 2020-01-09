@@ -43,8 +43,15 @@
 
 - nodejs 使用中的 debugger 的使用
   > 在 vscode 编译器，左侧菜单栏有 debugger 工具，自行调试。。。
-- server 开发和前端开发的区别
-  - 分别有稳定性、cpu 性能、日志、安全性等方面
+
+# server 开发和前端开发的区别
+
+- server 端开发要考虑的有服务稳定性（用 PM2 做进程守候）、cpu 内存与性能（server 端要承载很多请求，cpu 和内存都是稀缺资源；所以项目使用 stream 写日志以此节省 CPU 和内存，使用 redis 存 session 用于扩展系统 CPU 和内存 ）、日志记录、安全性、集群和服务拆分等方面
+- 前端也会参与写日志，但只是日志的发起方，不关心后续
+- server 端要记录日志、存储日志、分析日志，前端不关心
+- 日志记录方式有多种，根据不同需要进行选择
+- server 端要随时准备接受各种恶意攻击，前端则少很多。如越权操作，数据库攻击等。做登录验证，预防 xss 和 sql 注入
+- 产品发展速度快流量可能会迅速增加，如何通过扩展机器和服务拆分来承载大流量？课程虽然是单机器开发，但是从设计上支持服务拆分
 
 # 博客项目介绍
 
@@ -106,71 +113,160 @@
 
 # 数据存储
 
-- mysql 介绍、安装和使用
-  > MySQL 是企业内最常用的存储工具，一般都有专人运维，MySQL 也是社区内最常用的存储工具，有问题可以随时查资料，MySQL 本身是一个复杂的数据库软件，本项目只了解基本使用；是 web server 中最流行的关系型数据库；官网课免费下载用于学习；轻量级易学易用
-  1. 执行安装
-  2. 过程中需要输入 root 用户名的密码，要记住这个密码
-  3. 安装 MySQL workbench，用于操作 MySQL 的客户端，可视化操作
-- nodejs 连接 mysql
+# mysql 介绍、安装和使用
 
-  1. 示例：用 demo 演示，不考虑使用
+> MySQL 是企业内最常用的存储工具，一般都有专人运维，MySQL 也是社区内最常用的存储工具，有问题可以随时查资料，MySQL 本身是一个复杂的数据库软件，本项目只了解基本使用；是 web server 中最流行的关系型数据库；官网课免费下载用于学习；轻量级易学易用
 
-  ```
-  <!-- index.js/app.js代码示例 -->
-  <!-- 先安装mysql npm i mysql -->
-  const mysql = require("mysql")
-  // 创建连接对象
-  const con = mysql.createConnection({
+1. 执行安装
+2. 过程中需要输入 root 用户名的密码，要记住这个密码
+3. 安装 MySQL workbench，用于操作 MySQL 的客户端，可视化操作
+
+# nodejs 操作 mysql
+
+mysql 忘记密码解决方案：https://blog.csdn.net/weidong_y/article/details/80493743
+
+1. 示例：用 demo 演示，不考虑使用
+
+```
+<!-- index.js/app.js代码示例 -->
+<!-- 先安装mysql npm i mysql -->
+const mysql = require("mysql")
+// 创建连接对象
+const con = mysql.createConnection({
+  host:"localhost",
+  user:"root",
+  password:"12345678",
+  port:"3306",
+  database:"blogServer"
+})
+// 开始连接
+con.connect()
+// 执行sql语句
+const sql = "select * from users"
+con.query(sql,(err,result)=>{
+  if(err){
+    console.error(err)
+    return
+  }
+  console.log(result)
+})
+// 关闭连接
+con.end()
+```
+
+2. 封装：将其封装为系统可用的工具
+
+```
+<!-- 先安装mysql npm i mysql -->
+<!-- src下新建conf文件夹，conf文件夹下新建db.js文件,内容如下 -->
+const env = process.env.NODE_ENV // 获取环境变量参数
+// 配置
+let MYSQL_CONF
+if(env==="dev") {
+  MYSQL_CONF={
     host:"localhost",
     user:"root",
     password:"12345678",
     port:"3306",
     database:"blogServer"
-  })
-  // 开始连接
-  con.connect()
-  // 执行sql语句
-  const sql = "select * from users"
-  con.query(sql,(err,result)=>{
-    if(err){
-      console.error(err)
-      return
-    }
-    console.log(result)
-  })
-  // 关闭连接
-  con.end()
-  ```
-
-  2. 封装：将其封装为系统可用的工具
-
-  ```
-  <!-- 先安装mysql npm i mysql -->
-  <!-- src下新建config文件夹，config文件夹下新建db.js文件,内容如下 -->
-  const env = process.env.NODE_ENV // 获取环境变量参数
-  // 配置
-  let MYSQL_CONF
-  if(env==="dev") {
-    MYSQL_CONF={
-      host:"localhost",
-      user:"root",
-      password:"12345678",
-      port:"3306",
-      database:"blogServer"
-    }
   }
-  if(env==="production") {
+}
+if(env==="production") {
+  MYSQL_CONF = {
     host:"localhost",
     user:"root",
     password:"12345678",
     port:"3306",
     database:"blogServer"
   }
-  module.exports = {
-    MYSQL_CONF
+}
+module.exports = {
+  MYSQL_CONF
+}
+```
+
+```
+<!-- src下新建db文件夹，db文件夹(存放与数据操作有关的文件)下新建mysql.js文件,内容如下 -->
+```
+
+3. 使用：让 API 直接操作数据库，不再使用假数据
+
+- API 对接 mysql
+
+# 登录
+
+> 核心：登录校验&登录信息存储
+
+## cookie 和 session 是实现登录的必要条件和解决方案
+
+1. 什么是 cookie
+   > 存储在浏览器的一段字符串（最大 5kb）；跨域不共享；格式如 k1=v1;k2=v2;k3=v3;因此可以存储结构化数据；
+   > 每次发送 http 请求，会将请求域的 cookie 一起发送给 server;
+   > server 可以修改 cookie 并返回给浏览器;
+   > 浏览器中也可以通过 JavaScript 修改 cookie（有限制）
+2. javascript 操作 cookie，浏览器中查看 cookie
+3. server 端（nodejs）操作 cookie，实现登录验证
+   - 查看 cookie
+   ```
+   <!-- app.js中 -->
+   const cookieStr = req.headers.cookie || "";
+   <!-- router下的文件中  登陆成功的回调函数中-->
+   res.setHeader('Set-Cookie', username=${data.username}; path=/; httpOnly)
+   // 通过设置httpOnly限制客户端对cookie的修改
+   ```
+   - 修改 cookie
+   - 实现登录验证
+     > 用以上 cookie 的方式做登录验证存在一些问题如会暴露 username，很危险，如何解决：cookie 中存储 userid,server 端对应 username；即 server 端存储用户信息
+
+## session 写入 redis
+
+- session 的问题
+  1. 目前 session 直接是 jd 变量，放在 nodejs 进程中
+  2. 第一，进程内存有限，访问量过大，内存暴增怎么办
+  3. 第二，正式线上运行是多进程，进程之间内存无法共享
+- 解决方案 redis
+  1. web server 最常用的缓存数据库，数据存放在内存中
+  2. 相比于 MySQL，访问速度快
+  3. 但是成本更高，可存储的数据量更小
+     > 将 web server 和 redis 拆分为两个单独的服务，双方都是独立的，都是可扩展的（例如都扩展成集群），MySQL 也一样
+- 为什么 session 适合用 redis
+  1. session 访问频繁，对性能要求极高
+  2. session 可不考虑断电丢失数据的问题（内存的硬伤）
+  3. session 数据量不会太大（相比于 MySQL 中存储的数据）
+- 为什么网站数据不适合用 redis？
+  1. 操作频率不是太高（相比于 session 操作）
+  2. 断电不能丢失，必须保留
+
+### nodejs 连接 redis
+
+```
+首先 npm i redis 安装
+app/index.js 引入
+const redis = require("redis")
+// 创建客户端
+const redisClient = redis.createClient(6379,'127.0.0.1')
+redisClient.on('error',err=>{
+console.error(err)
+})
+// 测试
+redisClient.set('myname','zhangsan2',redis.print)
+redisClient.get('myname',(err,val)=>{
+  if(err) {
+    console.error(err)
+    return
   }
-  ```
+  console.log('val ',val)
+  // 退出
+  redisClient.quit()
+})
+```
 
-  3. 使用：让 API 直接操作数据库，不再使用假数据
+### nodejs 连接 redis 封装成工具
 
-- API 连接 mysql
+## 开发登录功能，和前端联调（用到 nginx 反向代理）
+
+- 登录功能依赖 cookie，必须用浏览器来联调
+- cookie 跨域不共享，前端和 server 端必须同域
+- 需要用到 nignx 做代理，让前后端同域
+
+1. 首先开发一个前端页面

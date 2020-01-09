@@ -1,3 +1,4 @@
+//用于统一接口返回格式
 class BaseModel {
   constructor(data, message) {
     if (typeof data === "string") {
