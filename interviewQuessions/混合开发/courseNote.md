@@ -8,6 +8,7 @@
 - PWA
 
 > 面对如此众多的开发方案，我们不必纠结学习哪些，而是要究其本质从原理入手，研究 vue 或者其他框架配合 Android、IOS 的跨语言通讯原理
+
 # 课程收获
 
 - 前端技术开发
@@ -213,7 +214,7 @@
 
   3. 引入初始化样式文件 reset.scss
 
-  ![dimens.scss文件内容](./images/rem02.png)
+  ![dimens.scss文件内容](./images/rem03.png)
 
   4. 创建 style.scss 文件
 

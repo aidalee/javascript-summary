@@ -215,13 +215,13 @@ module.exports = {
    // 通过设置httpOnly限制客户端对cookie的修改
    ```
    - 修改 cookie
-   - 实现登录验证
-     > 用以上 cookie 的方式做登录验证存在一些问题如会暴露 username，很危险，如何解决：cookie 中存储 userid,server 端对应 username；即 server 端存储用户信息
+   - 实现登录验证（后端代码调用登录接口方法验证通过时，set-cookie，返回到前端，此时前端便有了 cookie；之后前端再调别的接口时会在 req header 中带上这些 cookie，后端接到前端的接口请求判断 req header 中是否带有想要的 cookie 值，如果有说明登录过了，没有则尚未登录）
+     > 用以上 cookie 的方式做登录验证存在一些问题如会暴露 username，很危险，如何解决：cookie 中存储 （标识）userid,server 端对应 username；即 server 端存储用户信息
 
 ## session 写入 redis
 
 - session 的问题
-  1. 目前 session 直接是 jd 变量，放在 nodejs 进程中
+  1. 目前 session 直接是 js 变量，放在 nodejs 进程中
   2. 第一，进程内存有限，访问量过大，内存暴增怎么办
   3. 第二，正式线上运行是多进程，进程之间内存无法共享
 - 解决方案 redis
@@ -270,3 +270,111 @@ redisClient.get('myname',(err,val)=>{
 - 需要用到 nignx 做代理，让前后端同域
 
 1. 首先开发一个前端页面
+
+## nginx 介绍
+
+1. 高性能的 web 服务器，开源免费
+2. 一般用于做静态服务、负载均衡
+3. 还有反向代理（nginx 作为一个中介者，看请求的路径带有/就代理到放前端代码的服务器上请求，如果路径带有/api/就去后端代码服务器请求）。使用前先下载安装，然后通过设置 nginx 配置文件的内容即可
+
+# 日志
+
+1. 系统没有日志，等于抓瞎
+2. 第一，访问日志 access log(server 端最重要的日志)
+3. 第二，自定义日志（包括自定义事件、错误记录等）
+
+## 知识点
+
+1. nodejs 文件操作，nodejs stream
+2. 日志功能开发和使用
+3. 日志文件拆分，日志内容分析
+
+- 日志要存储到文件中，不适合存储到 MySQL 和 redis 中（主要是因为 mysql 存储的都是表结构的数据且日志文件很大）
+
+### IO 操作的性能瓶颈
+
+- IO 包括”网络 IO”（如客户端向服务端 post 数据）和“文件 IO“
+- 相比于 CPU 计算和内存独写，IO 的突出特点就是慢
+- 如何在有限的硬件资源下提高 IO 的操作效率，所以就有了 stream 流
+
+```
+// demo1-标准输入输出:
+process.stdin.pipe(process.stdout)
+// demo2:
+const http = require('http')
+const server = http.createServer((req,res) => {
+  if(req.method==='POST') {
+    req.pipe(res)  // 主要代码
+  }
+})
+server.listen(8000)
+// demo3:
+let readStream = fs.createReadStream(fileName1) // 读取文件的stream对象
+let writeStream = fs.createWriteStream(fileName2) // 写入文件的stream对象
+// 通过pipe执行拷贝
+readStream.pipe(writeStream)
+readStream.on('data',chunk => {
+  console.log(chunk.toString())
+})
+// 数据读取完成，即拷贝完成
+readStream.on('end',function(){
+  console.log('拷贝完成')
+})
+// demo4:
+const http = require('http')
+const server = http.createServer((req,res) => {
+  if(req.method==='GET') {
+    let fileName = path.resolve(__dirname,'data.txt');
+    let stream = fs.createReadStream(fileName);
+    stream.pipe(res) // 将res作为stream的dest
+  }
+})
+
+```
+
+### 拆分日志
+
+> 日志内容会慢慢积累，放在一个文件中不好处理；按时间划分日志文件，如 2019-02-10.access.log；实现方式：linux 的 crontab 命令，即定时任务。（一般不用 windows 做服务端）。command 命令运行文件为 copy.sh
+
+1. 设置定时任务，格式：**\***command
+2. 将 access.log 拷贝并重命名为 2019-02-10.access.log
+3. 清空 access.log 文件，继续积累日志
+
+### 日志分析
+
+- 如针对 access.log 日志分析 chrome 占比
+- 日志是按行存储的，一行就是一条日志
+- 使用 nodejs 的 readline（基于 stream，效率高）
+
+# 安全
+
+- sql 注入：窃取数据库内容
+  > sql 注入是最原始、最简单的攻击，从有了 web2.0 就有了 sql 注入攻击；攻击方式：输入一个 sql 片段，最终拼接成一段攻击代码；预防措施：使用 mysql 的 escape 函数(对特殊符号进行转义以去特殊化)处理输入内容即可。
+- xss 攻击：窃取前端的 cookie 内容
+  > xss 攻击是前端最熟悉的攻击方式，但 server 端更应该掌握；攻击方式：在页面展示内容中掺杂 js 代码以获取网页信息；预防措施：转换 js 的特殊符号（&、<、>、"、'、/等）；安装 xss 工具 npm i xss；用 xss 方法处理输入的内容；前端在输出的时候可以借助第三方库将内容反转义
+- 密码加密：保障用户信息安全（重要！）
+- server 端攻击方式非常多，预防手段也非常多
+- 本课只涉及常见的、能通过 web server(nodejs)层面预防的
+- 有些攻击需要硬件和服务来支持（需要 OP 支持），如 DDOS
+
+# 密码加密
+
+> 万一数据库被攻破，最不应该泄露的就是用户信息；攻击方式：获取用户名和密码，再去尝试登录其他系统；预防措施：将密码加密；
+
+# 使用框架
+
+- express 是 nodejs 最常用的 webserver 框架
+- express 并没有过时，生态比 koa 好,下载量也比 koa 高很多
+
+## express 下载、安装和使用，express 中间件机制
+
+- 安装（使用脚手架 express-generator）
+  > 先全局安装 npm i express-generator -g,然后 express <项目名称>，即可生成 express 框架的项目
+- 初始化代码介绍，处理路由
+  1. 介绍 app.js：各个插件的作用，思考各个插件的实现原理（结合之前学过的知识）
+  2. 处理 get 请求和 post 请求
+- 使用中间件
+
+## 开发接口，连接数据库，实现登录，日志记录
+
+## 分析 express 中间件原理
