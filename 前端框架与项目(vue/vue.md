@@ -169,11 +169,132 @@
 
 ### 自定义 v-model
 
+> 代码演示
+
+```
+<!-- index.vue -->
+<p>{{name}}</p>
+<CustomVModel></CustomVModel>
+<!-- CustomVModel.vue -->
+<input type="text" :value="text" @change="$emit('change',$event.target.value)" />
+export default {
+  model:{
+    prop:"text",//对应props text
+    event:"change"
+  }
+  props:{
+    text:String,
+    default(){
+      return ''
+    }
+  }
+}
+```
+
 ### \$nextTick
 
-### slot
+> 组件更新之后如何获取最新 DOM，以便做某些操作？————：
+> vue 是异步渲染的，data 改变之后，DOM 不会立刻渲染，\$nextTick 会在 DOM 渲染之后被触发，以获取最新 DOM 节点
+> 例如 data 中定义了一个列表 list，给一个 button 添加点击方法，每次点击给 list 添加三个元素之后打印出 list 的长度，如果不用\$nextTick，打印出的长度会是旧的 list 的长度。
+> \$nextTick：异步渲染，待 dom 渲染完再回调；页面渲染时会将 data 的修改做整合，多次 data 修改指挥渲染一次。这样的设计满足性能需求和执行效率。
+
+### slot（插槽）
+
+- 基本使用
+
+  ```
+  <!-- slotDemo.vue -->
+  <template>
+    <a :href="url">
+      <slot>默认内容，即父组件没设置内容时，这里显示</slot>
+    </a>
+  </template>
+  export default {
+    props: ['url'],
+    data(){
+      return {}
+    }
+  }
+  <!-- index.vue -->
+  <slotDemo :url="website.url">
+    {{website.title}} // 这里插入标签或者自定义组件等也都可以
+  </slotDemo>
+  ```
+
+- 作用域插槽
+
+  ```
+  <!-- scopedSlotDemo -->
+  <template>
+    <a :href="url">
+      <slot :slotData="website">
+        {{website.subTitle}} // 默认值显示subTitle，即父组件不传值时默认显示的值
+      </slot>
+    </a>
+  </template>
+  export default {
+    props: ['url'],
+    data(){
+      return {
+        website:{
+          url:'http://wangEditor.com/',
+          title:'wangEditor',
+          subTitle:'轻量级富文本编辑器'
+        }
+      }
+    }
+  }
+  <!-- index.vue -->
+  <scopedSlotDemo :url="website.url">
+    <template v-slot="slotProps"> // slotProps这个名称可自己定义
+      {{slotProps.slotData.title}} // slotData对应子组件slot标签上定义的属性
+    </template>
+  </scopedSlotDemo>
+  ```
+
+- 具名曹操
+
+  > 在 2.6.0 中，我们为具名插槽和作用域插槽引入了一个新的统一的语法 (即 v-slot 指令)。它取代了 slot 和 slot-scope 这两个目前已被废弃但未被移除且仍在文档中的 attribute。
+
+  ```
+  <!-- NamedSlot组件 -->
+  <div class="container">
+    <header>
+      <slot name="header"></slot>
+    </header>
+    <main>
+      <slot></slot>
+    </main>
+    <footer>
+      <slot name="footer"></slot>
+    </footer>
+  </div>
+  <!-- index.vue -->
+  <NamedSlot>
+    <template v-slot:header>
+      <h1>将插入到header slot中</h1>
+    </template>
+    <p>将插入到main中未命名的slot中</p>
+    <template v-slot:footer>
+      <h1>将插入到footer slot中</h1>
+    </template>
+  </NamedSlot>
+  ```
 
 ### 动态、异步组件
+
+- 动态组件
+
+  > 动态组件用法: :is="component-name";(component-name 是 data 中定义的变量或字符串)需要根据数据，动态渲染的场景。即组件类型不确定。
+  > 动态组件应用场景：如新闻详情页；内容从上到下排布有：text 组件、text 组件、image 组件、text 组件、video 组件...
+
+- 异步组件
+  > 组件什么时候使用什么时候再加载，使用方法就是不使用传统引入组件的方式，而是以下面这种方式来引用:
+  ```
+    components:{
+      FormDemo:()=>import("../BaseUse/FormDemo")
+    }
+  ```
 
 ### keep-alive
 
@@ -190,3 +311,7 @@
 ## 描述组件渲染和更新的过程
 
 ## 双向数据绑定 v-model 的实现原理 -->
+
+```
+
+```
