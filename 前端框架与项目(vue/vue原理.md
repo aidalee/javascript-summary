@@ -5,7 +5,7 @@
 > 数据驱动视图-React setState
 > 答题技巧：说出以上的点，并配合 mvvm 流程图做个大概解说（model、view、ViewModel）
 
-# 监听 data 变化的核心 API 是什么
+## 监听 data 变化的核心 API 是什么
 
 - 涉及概念：Vue 响应式
 
@@ -45,6 +45,22 @@
   > 无法监听新增/删除属性（所以有 Vue.set Vue.delete）
 
 - Object.defineProperty 的一些缺点（Vue3.0 启用 proxy,但 proxy 有兼容性问题，且无法 polyfill,所以 vue2.x 还会使用一段时间）
+
+## 虚拟 dom
+
+> 传统都是 js/jq 操作 dom,操作 dom 耗费性能；vdom 则用 js 模拟 dom 结构，计算出最小的变更，操作 Dom(可能会考察虚拟 dom 结构)
+
+```
+<div id="div1" class="container">
+  <p>vdom</p>
+  <ul style="font-size:20px">
+    <li>a</li>
+  </ul>
+</div>
+{
+  tag
+}
+```
 
 <!-- # 问题
 
