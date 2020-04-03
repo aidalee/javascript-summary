@@ -72,3 +72,131 @@ optimization: {
 ## 抽离公共代码和第三方代码库
 
 > 比如在两个组件里引入了两次（import {sum} from './math'），则会打包两次 sum。如果在一个文件 index.js 里引入了第三方模块 lodash,每次修改了 index.js 文件重新打包时总要再打包 lodash,所以将 lodash 抽出来单独打包，这样只需要打包一次。
+
+```
+optimization: {
+    // 压缩 css
+    minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
+
+    // 分割代码块
+    splitChunks: {
+        chunks: 'all',
+        /**
+            * initial 入口 chunk，对于异步导入的文件不处理
+            async 异步 chunk，只对异步导入的文件处理
+            all 全部 chunk
+            */
+
+        // 缓存分组
+        cacheGroups: {
+            // 第三方模块
+            vendor: {
+                name: 'vendor', // chunk 名称
+                priority: 1, // 权限更高，优先抽离，重要！！！
+                test: /node_modules/,
+                minSize: 0,  // 大小限制
+                minChunks: 1  // 最少复用过几次
+            },
+
+            // 公共的模块
+            common: {
+                name: 'common', // chunk 名称
+                priority: 0, // 优先级
+                minSize: 0,  // 公共模块的大小限制
+                minChunks: 2  // 公共模块最少复用过几次
+            }
+        }
+    }
+}
+```
+
+## webpack 如何实现 异步加载 js
+
+```
+setTimeout(()=>{
+    <!-- 回顾类似vue react异步组件 -->
+    import('./dynamic-data.js').then(res=>{
+        console.log(res.default.message)
+    })
+    <!-- import支持promise -->
+},1500)
+```
+
+## 处理 JSX
+
+> 安装 @babel/preset-react
+
+## 处理 vue
+
+> vue-loader
+
+## module chunk bundle 的区别
+
+- module:各个源码文件，webpack 中一切皆模块
+- chunk:多个模块合并成的，如 entry import() splitChunk
+- bundle:最终的输出文件
+
+## webpack 优化构建速度（大厂必考社区热议话题：并不难）
+
+- 优化打包构建速度-开发体验和效率
+
+1. 优化 babel-loader ——可用于生产环境
+
+```
+{
+    test:/\.js$/,
+    use:['babel-loader?cacheDirectory'],//开启缓存
+    include:path.resolve(__dirname,'src'),//明确范围
+    <!-- exclude:path.resolve(__dirname,'node_modules')排除范围，两者选一个即可 -->
+
+}
+```
+
+2. 用 IgnorePlugin 忽略无用模块——可用于生产环境
+   > 如：import moment from 'moment',默认引入所有语言 JS 代码，代码量过大，如何只引入中文
+   ```
+   <!-- index.js -->
+   import moment from 'moment'
+   import 'moment/locale/zh-cn' // 手动引入中文语言包
+   moment.locale('zh-cn')
+   <!-- webpack.prod.js 忽略moment下的/locale目录-->
+   new webpack.IgnorePlugin(/\.\/locale/,/moment/)
+   ```
+3. noParse 避免重复打包——可用于生产环境
+
+   ```
+   <!-- 对xxx.min.js类型的文件不进行打包 -->
+   module.exports = {
+       module:{
+           noParse:[/react\.min\.js$/]
+       }
+   }
+   ```
+
+   > IgnorePlugin VS noParse: IgnorePlugin 是直接不引入，代码中没有，noParse 是引入了但不打包（不进行 babel 编译以及模块化分析等）
+
+4. happyPack 多进程打包 ——可用于生产环境
+   > JS 是单线程的，使用 happyPack 插件 开启多进程打包，提高构建速度，特别是多核 CPU。
+5. parallelUglifyPlugin 多进程压缩 js——一般只用于生产环境不会用于开发环境
+   > webpack 内置 Uglify 工具压缩 JS,JS 单线程，开启多进程压缩更快和 happyPack 同理
+   > 项目较大，打包较慢，开启多进程能提高速度，项目较小，打包很快，开启多进程会降低速度（进程开销）。所以要按需使用。
+6. 自动刷新————不用于生产环境
+   > 保存代码页面自动更新，dev 中配置 watchOptions 即可，prod 不需要。
+7. 热更新 dev 环境下，插件：HotModuleReplacementPlugin————不用于生产环境
+   > 自动刷新是整个网页全部刷新，速度较慢；自动刷新状态会丢失；
+   > 热更新：新代码生效，网页不刷新，状态不丢失
+   > 热更新的代价是需要在开发中自行配置哪些模块是需要热更新的,如自动刷新可满足开发需求则不需要加热更新功能
+   ```
+   <!-- 如在index.js中 -->
+   if(module.hot) {
+       module.hot.accept(['./math'],()=>{
+           const sumRes=sum(10,30)
+           console.log("....")
+       })
+   }
+   ```
+8. DllPlugin 动态链接库插件 只在开发环境中使用————不用于生产环境
+   > 应用场景：前端框架如 vue react 体积大构建慢；较稳定，不常升级；同一个版本之构建一次即可，不用每次都重新构建
+   > webpack 已内置 Dllplugin 支持，Dllplugin——打包出 dll 文件，DllReferenceplugin——使用 dll 文件
+
+- 优化产出代码-产品性能
