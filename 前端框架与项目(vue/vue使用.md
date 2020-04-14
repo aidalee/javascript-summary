@@ -112,7 +112,7 @@
 #### 父子组件生命周期
 
 > 初次渲染时 生命周期钩子执行顺序是： 父组件 created、子组件 created、子组件 mounted、父组件 mounted
-> 更新（状态）时生命周期钩子执行顺序是：父组件 update、子组件 update、子组件 updated、父组件 updated
+> 更新（状态）时生命周期钩子执行顺序是：父组件 beforeUpdate、子组件 beforeUpdate、子组件 updated、父组件 updated
 > 销毁阶段生命周期钩子执行顺序是：父组件 beforeDestroy、子组件 beforeDestroy、子组件 destroyed、父组件 destroyed
 
 ### vue 组件如何通讯
@@ -135,7 +135,7 @@
   }
   ```
 
-#### 组件间通讯-自定义事件(实现两个不想关的组件的通讯，一般是兄弟组件，或相差很远的组件:非父子非兄弟)
+#### 组件间通讯-自定义事件(实现两个不相关的组件的通讯，一般是兄弟组件，或相差很远的组件:非父子非兄弟)
 
     ```
     <!-- event.js： -->
@@ -174,7 +174,8 @@
 ```
 <!-- index.vue -->
 <p>{{name}}</p>
-<CustomVModel></CustomVModel>
+<CustomVModel v-model="customVmodel"></CustomVModel>
+<!-- customVmodel 对应props中的text，能做到子组件修改父组件中定义的值 -->
 <!-- CustomVModel.vue -->
 <input type="text" :value="text" @change="$emit('change',$event.target.value)" />
 export default {
@@ -286,6 +287,11 @@ export default {
 - 动态组件
 
   > 动态组件用法: :is="component-name";(component-name 是 data 中定义的变量或字符串)需要根据数据，动态渲染的场景。即组件类型不确定。
+
+  ```
+  <component v-bind:is="currentTabComponent"></component>
+  ```
+
   > 动态组件应用场景：如新闻详情页；内容从上到下排布有：text 组件、text 组件、image 组件、text 组件、video 组件...
 
 - 异步组件
