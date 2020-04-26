@@ -1,52 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Es5版本的Object.assign</title>
-</head>
+  </head>
 
-<body>
-
-</body>
-
+  <body></body>
 </html>
 <script>
-    // if (typeof Object.assign != 'function') {
-        (function () {
-            Object.assigns = function (target) {
-                // 通过调用该函数可以拷贝所有可被枚举的自有属性值到目标对象中
-                // debugger
-                'use strict';
-                if (target === undefined || target === null) {
-                    throw new TypeError('Cannot convert undefined or null to object');
-                }
-                console.log(target)
-                var output = Object(target);
-                console.log(output)
-                for (var index = 1; index < arguments.length; index++) {
-                    // debugger
-                    var source = arguments[index];
-                    if (source !== undefined && source !== null) {
-                        for (var nextKey in source) {
-                            // 先遍历自有属性和原型上的继承属性
-                            // for in 会遍历到原型上的属性 但不会遍历不可枚举的属性
-                            if (source.hasOwnProperty(nextKey)) {
-                                // 排除非自有属性(继承属性)
-                                // hasOwnProperty()判断对象是否包含特定的自身（非继承）属性。
-                                output[nextKey] = source[nextKey];
-                            }
-                        }
-                    }
-                }
-                return output;
-            };
-        })();
-    // }
-    let obj = { a: 1, b: 2 }
-    let obj2 = 21
-    let newObj = Object.assigns({}, obj2)
-    console.log(newObj)
+  // if (typeof Object.assign != 'function') {
+  (function () {
+    Object.assigns = function (target) {
+      // 通过调用该函数可以拷贝所有可被枚举的自有属性值到目标对象中
+      // debugger
+      "use strict";
+      if (target === undefined || target === null) {
+        throw new TypeError("Cannot convert undefined or null to object");
+      }
+      console.log(target);
+      var output = Object(target);
+      console.log(output);
+      console.log(arguments);
+      for (var index = 1; index < arguments.length; index++) {
+        // debugger
+        var source = arguments[index];
+        if (source !== undefined && source !== null) {
+          for (var nextKey in source) {
+            // 先遍历自有属性和原型上的继承属性
+            // for in 会遍历到原型上的属性 但不会遍历不可枚举的属性
+            if (source.hasOwnProperty(nextKey)) {
+              // 排除非自有属性(继承属性)
+              // hasOwnProperty()判断对象是否包含特定的自身（非继承）属性。
+              output[nextKey] = source[nextKey];
+            }
+          }
+        }
+      }
+      return output;
+    };
+  })();
+  // }
+  let obj = { a: 1, b: 2 };
+  let obj2 = 21;
+  let newObj = Object.assigns({}, obj);
+  console.log(newObj);
 </script>
