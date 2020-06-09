@@ -95,8 +95,8 @@ shouldComponentUpdate(nextProps,nextState){ // 默认情况下返回true
 
 > 在 react 中只要父组件有更新（其内部任何元素、数据或子组件有更新），那么其内部所有的子组件也都会更新(不管数据有没有变化)；
 > SCU 默认的返回是 true
-> SCU 不一定每次都用——需要的时候才去优化
-> SCU 一定要配合不可变值的写法
+> SCU 不一定每次都用——需要的时候才去优化，先不用，有性能问题时再考虑使用
+> SCU 一定要配合不可变值的写法 ▲▲▲
 > 如果违反了不可变值，那么在对 nextState 和 this.state 进行比较时两者一定是相等的，既然相等了那由于 SCU 的处理，界面就不会重新渲染了
 
 - PureComponent 和 React.memo
