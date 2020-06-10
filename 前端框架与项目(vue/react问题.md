@@ -98,6 +98,67 @@ shouldComponentUpdate(nextProps,nextState){ // 默认情况下返回true
 > SCU 不一定每次都用——需要的时候才去优化，先不用，有性能问题时再考虑使用
 > SCU 一定要配合不可变值的写法 ▲▲▲
 > 如果违反了不可变值，那么在对 nextState 和 this.state 进行比较时两者一定是相等的，既然相等了那由于 SCU 的处理，界面就不会重新渲染了
+> 不建议在 SCU 中做深度比较
 
 - PureComponent 和 React.memo
+  > pureComponent 的 scu 中实现了浅比较（对 props 和 state）用法：
+  <!-- 详细讲解 https://www.jianshu.com/p/b3d07860b778 -->
+  ```
+    export default class PageB extends React.PureComponent {
+    // 将PureComponebt改成Component看看效果
+    state = {
+      items: [{ a: 1 }, { a: 2 }, { a: 3 }],
+    };
+    handleClick = () => {
+      const { items } = this.state;
+      // items[0].a = 3;
+      // items.pop();
+      items.splice(items.length - 1, 1);
+      this.setState({ items });
+      // this.setState({ items: [...items] });
+    };
+    render() {
+      console.log('Parent Rendering', this.state.items);
+      return (
+        <div>
+          <ul>
+            {this.state.items.map(i => (
+              // <li key={i}>{i}</li>
+              <li key={i.a}>{i.a}</li>
+            ))}
+          </ul>
+          {/* <div>{this.state.item[0].a}</div> */}
+          <button onClick={this.handleClick}>delete</button>
+        </div>
+      );
+    }
+    }
+  ```
+  > React.memo,函数组件中的 pureComponent
+  ```
+    function Child({seconds}){
+      console.log('I am rendering');
+      return (
+          <div>I am update every {seconds} seconds</div>
+      )
+    };
+    export default React.memo(Child)
+  ```
 - 不可变值 immutable.js(如果不想按照不可变值的方式更新 state,就引入这个 js 库，但引入是有成本的)
+
+# Redux
+
+> react 是单向数据流的，数据只能从 A 传到 B，从 B 再传到 C，从 A 直接到 C 是不行的，另外兄弟组件无法共享数据
+> 在 redux 中：
+
+- State: react 中的状态，是只读对象，不可直接修改
+- Reducer: 基本函数，用于对 State 的业务处理,（由 Action 来触发）
+- Action: 普通对象，用于描述事件行为，改变 State
+
+> react 集成步骤:（安装 redux 和 react-redux 和 redux-devtools-extension --save 用于调试，chrome 应用商店同时也要下载 react 的 devtools）
+
+1. 创建 Action 模块
+2. 创建 Reducer 模块
+3. 创建 Store 模块（store 引用 reducer,action 触发 reducer；store 依赖于 reducer，reducer 依赖于 action）
+4. 通过 connect 方法将 React 组件和 Redux 连接起来
+5. 添加 Provider 作为项目的根组件，用于数据的存储
