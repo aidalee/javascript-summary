@@ -318,6 +318,12 @@ export default {
 
   > 面试考点并不多（前提是熟悉 Vue）;知道路由模式（hash、H5 history）后者需要服务端支持，因此无特殊需求可选择前者；路由表配置（动态路由、懒加载）
 
+## Vue 工作机制
+
+### 初始化
+
+在 new Vue()之后，会调用进行初始化，会初始化生命周期、事件、props、methods、data、computed 与 watch 等，其中最重要的是通过 object。defineProperty 设置 setter 与 getter，用来实现响应式以及依赖收集，初始化之后调用\$mount 挂载组件
+
 <!--
 # 问题
 

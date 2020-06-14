@@ -1,6 +1,6 @@
 # react 组件如何通讯
 
-> props
+> 1. props 2. cotext 3. redux 4.（自定义事件（类似 vue 中的 bus 吧））
 
 # JSX 本质是什么
 
@@ -151,8 +151,8 @@ shouldComponentUpdate(nextProps,nextState){ // 默认情况下返回true
 > react 是单向数据流的，数据只能从 A 传到 B，从 B 再传到 C，从 A 直接到 C 是不行的，另外兄弟组件无法共享数据
 > 在 redux 中：
 
-- State: react 中的状态，是只读对象，不可直接修改
-- Reducer: 基本函数，用于对 State 的业务处理,（由 Action 来触发）
+- State: react 中的状态，是只读对象，不可直接修改，不可变值，要返回全新的对象而不是对 state 进行修改
+- Reducer: 基本函数，用于对 State 的业务处理，state 是不可变值，在这里基于原有的 state 返回全新的对象,（由 Action 来触发）
 - Action: 普通对象，用于描述事件行为，改变 State
 
 > react 集成步骤:（安装 redux 和 react-redux 和 redux-devtools-extension --save 用于调试，chrome 应用商店同时也要下载 react 的 devtools）
@@ -162,3 +162,32 @@ shouldComponentUpdate(nextProps,nextState){ // 默认情况下返回true
 3. 创建 Store 模块（store 引用 reducer,action 触发 reducer；store 依赖于 reducer，reducer 依赖于 action）
 4. 通过 connect 方法将 React 组件和 Redux 连接起来
 5. 添加 Provider 作为项目的根组件，用于数据的存储
+
+   > 在组件中，通过事件触发 action 中定义的事件行为，action 调 reducer 中的数据包装处理方法
+   > 同步 action 和异步 action
+
+   ```
+    // 同步action
+      export const addTodo = text =>{
+        // 返回action对象
+        return {
+          type:'ADD_TODO',
+          id:nextTodoId++,
+          text
+        }
+      }
+      // 异步 action
+      export const addTodoAsync = text => {
+        // 返回函数，其中有dispatch
+        return (dispatch)=>{
+          // ajax 异步获取数据
+          fetch(url).then(res=>{
+            // 执行异步 action
+            dispatch(addTodo(res.text))
+          })
+        }
+      }
+      // 另外异步的方式要在创建store的文件里引入thunk from 'redux-thunk';const store=createStore(rootReducer,applyMiddleware(thunk));(import { applyMiddleware } from "redux";作为中间件引入)
+   ```
+
+# 简述 Redux 中间件的原理
