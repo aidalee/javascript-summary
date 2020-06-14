@@ -59,7 +59,7 @@ const add = function(x:number,y:number):number{ // 此时add也有了类型
 const add2:(x:number,y:number)=>number=add // 可正确赋值，说明add2和add是相同的类型
 ```
 
-> 类型推断：ts 会在没有给类型是推断出一个类型
+> 类型推断（论）：ts 会在没有给类型是推断出一个类型
 
 ```
 let str = 'str'
@@ -275,7 +275,7 @@ const sum2:PlusType = sum
 - 类型别名的常用场景是使用联合类型时
 
 ```
-// 加入函数接收的参数可能是string类型也可能是个函数类型，如果是string返回这个参数，如果是函数类型返回函数执行的结果
+// 假如函数接收的参数可能是string类型也可能是个函数类型，如果是string返回这个参数，如果是函数类型返回函数执行的结果
 type NameResolve = ()=>string
 type NameOrResolver = string | NameResolve
 function getName(n:NameOrResolver):string{

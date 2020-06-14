@@ -191,3 +191,38 @@ shouldComponentUpdate(nextProps,nextState){ // 默认情况下返回true
    ```
 
 # 简述 Redux 中间件的原理
+
+# ReactHook
+
+- 函数式组件和 class 组件:
+  > class 组件有状态、生命周期等；函数式组件没有状态和生命周期等,但有 hook....
+- 使用函数式组件使用 hook 是为了解决一些问题比如:
+
+  1. 组件很难复用状态逻辑(原始的 HOC 或者 render Props),而 hook 可以让你在无需修改组件的逻辑时就能够完成逻辑复用
+  2. 复杂组件难以理解,尤其是生命周期函数
+
+  ```
+  // 相似的逻辑都糅合在一起
+  componentDidMount(){
+    const {id} = this.props
+    fetch(`xxx?id=${id}`)
+    document.addEventListener('keypress',callback)
+  }
+  componentDidUpdate(){
+    const {id} = this.props
+    fetch(`xxx?id=${id}`)
+  }
+  componentWillUnmount(){
+    document.removeEventListener('keypress',callback)
+  }
+  ```
+
+- Hook 是什么?什么时候会用 useState Hook?
+  > Hook 是让你能够在函数组件中钩入 react 特性的函数,命名一般都以 use 开头
+  > 函数式组件如果想用 state,就可以使用 useState Hook
+
+# react 的一些特点：
+
+- 状态提升
+- 单向数据流：任何可变数据理应只有一个单一数据源，并且要保持自上而下的数据流；通常在拥有数据源的地方对数据进行综合处理
+- 一切皆 props
