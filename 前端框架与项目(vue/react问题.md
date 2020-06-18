@@ -198,6 +198,8 @@ shouldComponentUpdate(nextProps,nextState){ // 默认情况下返回true
   > class 组件有状态、生命周期等；函数式组件没有状态和生命周期等,但有 hook....
 - 使用函数式组件使用 hook 是为了解决一些问题比如:
 
+  > react 、纯函数组件除了根据 props state 等渲染特定 ui，还有网络请求，dom 操作，订阅数据来源等等和纯函数界面渲染不相关的事情，这些操作被称之为副作用。react 组件中有两种常见的副作用：无需清除的副作用、需要清除的副作用。
+
   1. 组件很难复用状态逻辑(原始的 HOC 或者 render Props),而 hook 可以让你在无需修改组件的逻辑时就能够完成逻辑复用
   2. 复杂组件难以理解,尤其是生命周期函数
 
@@ -220,9 +222,48 @@ shouldComponentUpdate(nextProps,nextState){ // 默认情况下返回true
 - Hook 是什么?什么时候会用 useState Hook?
   > Hook 是让你能够在函数组件中钩入 react 特性的函数,命名一般都以 use 开头
   > 函数式组件如果想用 state,就可以使用 useState Hook
+- React 自定义 Hook 的妙处
+  > 把逻辑上重复的代码提取到一个函数中，然后像调用一个函数一样去使用
+- Hook 使用规则
+  > 一：只在最顶层组件使用 Hook;二：只在 React 函数中调用 Hook,也可以在自定义 Hook 中调用其它 Hook,不要在普通的 js 函数中调用 hook
+- hoc 的一些缺陷，参考 ts-react-auth 项目
 
 # react 的一些特点：
 
 - 状态提升
 - 单向数据流：任何可变数据理应只有一个单一数据源，并且要保持自上而下的数据流；通常在拥有数据源的地方对数据进行综合处理
 - 一切皆 props
+
+# React useRef
+
+> react 函数组件中每一次的操作中的 props 和 state 都会形成闭包保持不变，直到下一次的操作。
+> 为了能实时拿到最新的 props 和 state，就要用到 useRef,
+> useRef 是多次渲染之间的纽带:const likeRef = useRef(0);setLike(like+1);likeRef.current++。使用时使用 likeRef。likeRef 保留的一直都是同一个值的索引。不像 useState 中的 state prop 在每一次的渲染时都是一个闭包。
+> 使用 useRef 可以实现函数式组件没有的生命周期的需求，（区分组件首次加载和组件更新）
+
+```
+const didMountRef = useRef(false)
+useEffect(()=>{
+  if(didMountRef.current) {
+    console.log('this is updated')
+  }else {
+    didMountRef.current=true
+  }
+})
+```
+
+> useRef 还能用于获取最新 dom 节点：参考 Vikingsship 项目
+
+```
+const domRef=useRef<HTMLInputElement>(null)
+return(
+  <input type="text" ref={domRef} />
+)
+useEffect(()=>{
+  if(domRef&&domRef.current){
+    domRef.current.focus()
+  }
+})
+```
+
+# React useContext Hook
